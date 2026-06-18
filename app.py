@@ -234,3 +234,166 @@ if menu == "Dashboard":
         df_filter,
         use_container_width=True
     )
+# ==================================================
+# VISUALISASI DATA
+# ==================================================
+
+elif menu == "Visualisasi Data":
+
+    st.title(
+        "📈 Visualisasi Data Pendidikan MI"
+    )
+
+    st.markdown(
+        "Visualisasi perkembangan jumlah siswa, guru, dan sekolah Madrasah Ibtidaiyah di Provinsi Jawa Barat."
+    )
+
+    # ==========================================
+    # GRAFIK JUMLAH GURU
+    # ==========================================
+
+    guru_tahun = (
+        df.groupby("Tahun")
+        ["Jumlah_Guru"]
+        .sum()
+        .reset_index()
+    )
+
+    fig_guru = px.line(
+        guru_tahun,
+        x="Tahun",
+        y="Jumlah_Guru",
+        markers=True,
+        title="Perkembangan Jumlah Guru"
+    )
+
+    fig_guru.update_layout(
+        template="plotly_white"
+    )
+
+    st.plotly_chart(
+        fig_guru,
+        use_container_width=True
+    )
+
+    # ==========================================
+    # GRAFIK JUMLAH SISWA
+    # ==========================================
+
+    siswa_tahun = (
+        df.groupby("Tahun")
+        ["Jumlah_Siswa"]
+        .sum()
+        .reset_index()
+    )
+
+    fig_siswa = px.line(
+        siswa_tahun,
+        x="Tahun",
+        y="Jumlah_Siswa",
+        markers=True,
+        title="Perkembangan Jumlah Siswa"
+    )
+
+    fig_siswa.update_layout(
+        template="plotly_white"
+    )
+
+    st.plotly_chart(
+        fig_siswa,
+        use_container_width=True
+    )
+
+    # ==========================================
+    # GRAFIK JUMLAH SEKOLAH
+    # ==========================================
+
+    sekolah_tahun = (
+        df.groupby("Tahun")
+        ["Jumlah_Sekolah"]
+        .sum()
+        .reset_index()
+    )
+
+    fig_sekolah = px.bar(
+        sekolah_tahun,
+        x="Tahun",
+        y="Jumlah_Sekolah",
+        title="Perkembangan Jumlah Sekolah"
+    )
+
+    fig_sekolah.update_layout(
+        template="plotly_white"
+    )
+
+    st.plotly_chart(
+        fig_sekolah,
+        use_container_width=True
+    )
+
+    st.markdown("---")
+
+
+    st.subheader(
+        "Perbandingan Antar Kota"
+    )
+
+    pilihan_tahun = st.selectbox(
+        "Pilih Tahun",
+        sorted(df["Tahun"].unique())
+    )
+
+    data_tahun = (
+        df[
+            df["Tahun"]
+            == pilihan_tahun
+        ]
+        .sort_values(
+            by="Jumlah_Guru",
+            ascending=False
+        )
+    )
+
+    fig_kota = px.bar(
+        data_tahun,
+        x="Kota",
+        y="Jumlah_Guru",
+        color="Jumlah_Guru",
+        title=f"Jumlah Guru Tahun {pilihan_tahun}"
+    )
+
+    fig_kota.update_layout(
+        xaxis_title="Kota",
+        yaxis_title="Jumlah Guru",
+        template="plotly_white"
+    )
+
+    st.plotly_chart(
+        fig_kota,
+        use_container_width=True
+    )
+
+    st.subheader(
+        "Top 10 Kota dengan Jumlah Guru Terbanyak"
+    )
+
+    top10 = (
+        data_tahun
+        .nlargest(
+            10,
+            "Jumlah_Guru"
+        )
+    )
+
+    st.dataframe(
+        top10[
+            [
+                "Kota",
+                "Jumlah_Guru",
+                "Jumlah_Siswa",
+                "Jumlah_Sekolah"
+            ]
+        ],
+        use_container_width=True
+    )
+
