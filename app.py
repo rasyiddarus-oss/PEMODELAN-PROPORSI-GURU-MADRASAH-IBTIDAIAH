@@ -22,11 +22,11 @@ st.markdown("""
 <style>
 
 .main{
-    background-color:#f8fafc;
+    background-color:#8c0615;
 }
 
 [data-testid="stMetric"]{
-    background-color:white;
+    background-color:red;
     padding:20px;
     border-radius:15px;
     border-left:6px solid #2563eb;
