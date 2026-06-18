@@ -27,36 +27,34 @@ menu = st.sidebar.selectbox(
 
 if menu == "Dashboard":
 
-    st.title(
-        "Dashboard Data Pendidikan MI"
-    )
+    st.title("📊 Dashboard Data Guru Madrasah Ibtidaiah")
+
+    total_guru = int(df["Jumlah_Guru"].sum())
+    total_siswa = int(df["Jumlah_Siswa"].sum())
+    total_sekolah = int(df["Jumlah_Sekolah"].sum())
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
         st.metric(
-            "Total Guru",
-            int(df["Jumlah_Guru"].sum())
+            label="👨‍🏫 Total Guru",
+            value=f"{total_guru:,}"
         )
 
     with col2:
         st.metric(
-            "Total Siswa",
-            int(df["Jumlah_Siswa"].sum())
+            label="🎓 Total Siswa",
+            value=f"{total_siswa:,}"
         )
 
     with col3:
         st.metric(
-            "Total Sekolah",
-            int(df["Jumlah_Sekolah"].sum())
+            label="🏫 Total Sekolah",
+            value=f"{total_sekolah:,}"
         )
 
-    st.subheader(
-        "Data Pendidikan MI"
-    )
-
-    st.dataframe(df.head(10))
-
+    st.divider()
+    
 elif menu == "Visualisasi Data":
 
     st.title(
