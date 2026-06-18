@@ -55,7 +55,7 @@ h1,h2,h3{
 @st.cache_data
 def load_data():
     return pd.read_excel(
-        "data/Hasil_Analisis_Guru_MI.xlsx"
+        "Hasil_Analisis_Guru_MI.xlsx"
     )
 
 df = load_data()
