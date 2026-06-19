@@ -446,3 +446,167 @@ if menu == "Dashboard":
         df_filter,
         use_container_width=True
     )
+
+elif menu == "Visualisasi Data":
+
+    st.title(
+        "📈 Visualisasi Data Pendidikan MI"
+    )
+
+    st.markdown(
+        "Eksplorasi hubungan jumlah siswa, jumlah sekolah, jumlah guru, dan proporsi guru."
+    )
+
+    st.subheader(
+        "Hubungan Jumlah Siswa dan Jumlah Guru"
+    )
+
+    fig = px.scatter(
+        df,
+        x="Jumlah_Siswa",
+        y="Jumlah_Guru",
+        color="Tahun",
+        size="Jumlah_Sekolah",
+        hover_name="Kota",
+        title="Jumlah Siswa vs Jumlah Guru"
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+
+    st.subheader(
+        "Hubungan Jumlah Sekolah dan Jumlah Guru"
+    )
+
+    fig = px.scatter(
+        df,
+        x="Jumlah_Sekolah",
+        y="Jumlah_Guru",
+        color="Tahun",
+        hover_name="Kota",
+        title="Jumlah Sekolah vs Jumlah Guru"
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+
+    st.subheader(
+        "Top 10 Kota dengan Jumlah Guru Terbanyak"
+    )
+
+    top_guru = (
+        df[
+            df["Tahun"] == 2025
+        ]
+        .sort_values(
+            by="Jumlah_Guru",
+            ascending=False
+        )
+        .head(10)
+    )
+
+    fig = px.bar(
+        top_guru,
+        x="Jumlah_Guru",
+        y="Kota",
+        orientation="h",
+        color="Jumlah_Guru",
+        title="Top 10 Kota dengan Guru Terbanyak Tahun 2025"
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+
+    st.subheader(
+        "Top 10 Kota dengan Jumlah Siswa Terbanyak"
+    )
+
+    top_siswa = (
+        df[
+            df["Tahun"] == 2025
+        ]
+        .sort_values(
+            by="Jumlah_Siswa",
+            ascending=False
+        )
+        .head(10)
+    )
+
+    fig = px.bar(
+        top_siswa,
+        x="Jumlah_Siswa",
+        y="Kota",
+        orientation="h",
+        color="Jumlah_Siswa",
+        title="Top 10 Kota dengan Jumlah Siswa Terbanyak Tahun 2025"
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+
+    st.subheader(
+        "Distribusi Rasio Siswa-Guru"
+    )
+
+    fig = px.histogram(
+        df,
+        x="Rasio_Siswa_Guru",
+        nbins=20,
+        title="Distribusi Rasio Siswa-Guru"
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+
+    st.subheader(
+        "Top 10 Rasio Siswa-Guru Tertinggi"
+    )
+
+    top_rasio = (
+        df[
+            df["Tahun"] == 2025
+        ]
+        .sort_values(
+            by="Rasio_Siswa_Guru",
+            ascending=False
+        )
+        .head(10)
+    )
+
+    st.dataframe(
+        top_rasio[
+            [
+                "Kota",
+                "Jumlah_Siswa",
+                "Jumlah_Guru",
+                "Rasio_Siswa_Guru"
+            ]
+        ],
+        use_container_width=True
+    )
+
+    st.markdown("---")
+
+    st.success(f"""
+    Insight Data Tahun 2025:
+
+    • Kota dengan jumlah guru terbanyak:
+      {top_guru.iloc[0]['Kota']}
+
+    • Kota dengan jumlah siswa terbanyak:
+      {top_siswa.iloc[0]['Kota']}
+
+    • Rasio siswa-guru tertinggi:
+      {top_rasio.iloc[0]['Kota']}
+      ({top_rasio.iloc[0]['Rasio_Siswa_Guru']:.2f})
+    """)
