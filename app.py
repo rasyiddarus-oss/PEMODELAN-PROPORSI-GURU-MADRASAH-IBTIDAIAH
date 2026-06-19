@@ -143,3 +143,246 @@ dan Analisis Gap
 Provinsi Jawa Barat
 """
 )
+
+# ==================================================
+# DASHBOARD
+# ==================================================
+
+if menu == "Dashboard":
+
+    st.title(
+        "📊 Dashboard Pendidikan MI Jawa Barat"
+    )
+
+    st.markdown(
+        "Ringkasan data guru, siswa, dan sekolah Madrasah Ibtidaiyah di Provinsi Jawa Barat."
+    )
+
+    # ==========================================
+    # KPI
+    # ==========================================
+
+    total_guru = int(
+        df_filter["Jumlah_Guru"].sum()
+    )
+
+    total_siswa = int(
+        df_filter["Jumlah_Siswa"].sum()
+    )
+
+    total_sekolah = int(
+        df_filter["Jumlah_Sekolah"].sum()
+    )
+
+    rata_rasio = round(
+        df_filter["Rasio_Siswa_Guru"].mean(),
+        2
+    )
+
+    col1,col2,col3,col4 = st.columns(4)
+
+    with col1:
+        st.metric(
+            "👨‍🏫 Total Guru",
+            f"{total_guru:,}"
+        )
+
+    with col2:
+        st.metric(
+            "🎓 Total Siswa",
+            f"{total_siswa:,}"
+        )
+
+    with col3:
+        st.metric(
+            "🏫 Total Sekolah",
+            f"{total_sekolah:,}"
+        )
+
+    with col4:
+        st.metric(
+            "📈 Rasio Siswa-Guru",
+            rata_rasio
+        )
+
+    st.markdown("---")
+
+    col1,col2 = st.columns(2)
+
+    with col1:
+
+        kondisi = (
+            df_filter["Kondisi"]
+            .value_counts()
+            .reset_index()
+        )
+
+        kondisi.columns = [
+            "Kondisi",
+            "Jumlah"
+        ]
+
+        fig_kondisi = px.pie(
+            kondisi,
+            values="Jumlah",
+            names="Kondisi",
+            hole=0.45,
+            title="Distribusi Kondisi Guru"
+        )
+
+        fig_kondisi.update_layout(
+            template="plotly_white"
+        )
+
+        st.plotly_chart(
+            fig_kondisi,
+            use_container_width=True
+        )
+
+    with col2:
+
+        guru_tahun = (
+            df.groupby("Tahun")
+            ["Jumlah_Guru"]
+            .sum()
+            .reset_index()
+        )
+
+        fig_guru = px.line(
+            guru_tahun,
+            x="Tahun",
+            y="Jumlah_Guru",
+            markers=True,
+            title="Perkembangan Jumlah Guru"
+        )
+
+        fig_guru.update_layout(
+            template="plotly_white"
+        )
+
+        st.plotly_chart(
+            fig_guru,
+            use_container_width=True
+        )
+
+    st.markdown("---")
+
+    col1,col2 = st.columns(2)
+
+    with col1:
+
+        siswa_tahun = (
+            df.groupby("Tahun")
+            ["Jumlah_Siswa"]
+            .sum()
+            .reset_index()
+        )
+
+        fig_siswa = px.bar(
+            siswa_tahun,
+            x="Tahun",
+            y="Jumlah_Siswa",
+            title="Jumlah Siswa per Tahun"
+        )
+
+        fig_siswa.update_layout(
+            template="plotly_white"
+        )
+
+        st.plotly_chart(
+            fig_siswa,
+            use_container_width=True
+        )
+
+    with col2:
+
+        sekolah_tahun = (
+            df.groupby("Tahun")
+            ["Jumlah_Sekolah"]
+            .sum()
+            .reset_index()
+        )
+
+        fig_sekolah = px.bar(
+            sekolah_tahun,
+            x="Tahun",
+            y="Jumlah_Sekolah",
+            title="Jumlah Sekolah per Tahun"
+        )
+
+        fig_sekolah.update_layout(
+            template="plotly_white"
+        )
+
+        st.plotly_chart(
+            fig_sekolah,
+            use_container_width=True
+        )
+
+    st.markdown("---")
+
+    st.subheader(
+        "🔴 Top 10 Kekurangan Guru"
+    )
+
+    top_kurang = (
+        df_filter[
+            df_filter["Gap"] > 0
+        ]
+        .sort_values(
+            by="Gap",
+            ascending=False
+        )
+        .head(10)
+    )
+
+    st.dataframe(
+        top_kurang[
+            [
+                "Kota",
+                "Tahun",
+                "Jumlah_Guru",
+                "Guru_Ideal",
+                "Gap"
+            ]
+        ],
+        use_container_width=True
+    )
+
+    st.subheader(
+        "🟢 Top 10 Kelebihan Guru"
+    )
+
+    top_lebih = (
+        df_filter[
+            df_filter["Gap"] < 0
+        ]
+        .sort_values(
+            by="Gap"
+        )
+        .head(10)
+    )
+
+    st.dataframe(
+        top_lebih[
+            [
+                "Kota",
+                "Tahun",
+                "Jumlah_Guru",
+                "Guru_Ideal",
+                "Gap"
+            ]
+        ],
+        use_container_width=True
+    )
+
+    st.markdown("---")
+
+    st.subheader(
+        "📋 Ringkasan Dataset"
+    )
+
+    st.dataframe(
+        df_filter,
+        use_container_width=True
+    )
