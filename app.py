@@ -417,7 +417,8 @@ if menu == "Dashboard":
         ],
         use_container_width=True
     )
-        st.markdown("---")
+    
+    st.markdown("---")
 
     st.subheader(
         "📋 Ringkasan Dataset"
