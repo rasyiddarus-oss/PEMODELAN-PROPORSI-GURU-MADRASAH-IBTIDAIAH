@@ -319,52 +319,93 @@ if menu == "Dashboard":
             use_container_width=True
         )
 
-    st.markdown("---")
-
-   st.subheader(
+        st.subheader(
     "🔴 Top 10 Kekurangan Guru Tahun 2025"
-    )
-    
-    data_2025 = df_filter[
-        df_filter["Tahun"] == 2025
-    ]
-    
-    top_kurang = (
-        data_2025[
-            data_2025["Gap"] > 0
-        ]
-        .sort_values(
-            by="Gap",
-            ascending=False
         )
-        .head(10)
-    )
+        
+        data_2025 = df[
+            df["Tahun"] == 2025
+        ]
+        
+        top_kurang = (
+            data_2025[
+                data_2025["Gap"] > 0
+            ]
+            .sort_values(
+                by="Gap",
+                ascending=False
+            )
+            .head(10)
+        )
 
-    st.dataframe(
-    top_kurang[
-        [
-            "Kota",
-            "Jumlah_Guru",
-            "Guru_Ideal",
-            "Gap"
-        ]
-    ],
-    use_container_width=True
-    )
-    st.subheader(
-    "🟢 Top 10 Kelebihan Guru Tahun 2025"
-    )
-    
-    top_lebih = (
-        data_2025[
-            data_2025["Gap"] < 0
-        ]
-        .sort_values(
-            by="Gap"
+               fig_kurang = px.bar(
+            top_kurang,
+            x="Gap",
+            y="Kota",
+            orientation="h",
+            color="Gap",
+            title="Top 10 Kekurangan Guru Tahun 2025",
+            text="Gap"
         )
-        .head(10)
-    )
-    
+        
+        fig_kurang.update_layout(
+            template="plotly_white",
+            yaxis_title="Kota",
+            xaxis_title="Gap Guru"
+        )
+        
+        st.plotly_chart(
+            fig_kurang,
+            use_container_width=True
+        )
+
+        st.dataframe(
+            top_kurang[
+                [
+                    "Kota",
+                    "Jumlah_Guru",
+                    "Guru_Ideal",
+                    "Gap"
+                ]
+            ],
+            use_container_width=True
+        )
+
+        st.subheader(
+    "🟢 Top 10 Kelebihan Guru Tahun 2025"
+        )
+        
+        top_lebih = (
+            data_2025[
+                data_2025["Gap"] < 0
+            ]
+            .sort_values(
+                by="Gap"
+            )
+            .head(10)
+        )
+
+        fig_lebih = px.bar(
+            top_lebih,
+            x="Gap",
+            y="Kota",
+            orientation="h",
+            color="Gap",
+            title="Top 10 Kelebihan Guru Tahun 2025",
+            text="Gap"
+        )
+        
+        fig_lebih.update_layout(
+            template="plotly_white",
+            yaxis_title="Kota",
+            xaxis_title="Gap Guru"
+        )
+        
+        st.plotly_chart(
+            fig_lebih,
+            use_container_width=True
+        )
+
     st.dataframe(
         top_lebih[
             [
@@ -376,7 +417,7 @@ if menu == "Dashboard":
         ],
         use_container_width=True
     )
-    st.markdown("---")
+        st.markdown("---")
 
     st.subheader(
         "📋 Ringkasan Dataset"
