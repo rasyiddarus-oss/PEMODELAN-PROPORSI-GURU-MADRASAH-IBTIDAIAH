@@ -321,13 +321,17 @@ if menu == "Dashboard":
 
     st.markdown("---")
 
-    st.subheader(
-        "🔴 Top 10 Kekurangan Guru"
+   st.subheader(
+    "🔴 Top 10 Kekurangan Guru Tahun 2025"
     )
-
+    
+    data_2025 = df_filter[
+        df_filter["Tahun"] == 2025
+    ]
+    
     top_kurang = (
-        df_filter[
-            df_filter["Gap"] > 0
+        data_2025[
+            data_2025["Gap"] > 0
         ]
         .sort_values(
             by="Gap",
@@ -337,37 +341,34 @@ if menu == "Dashboard":
     )
 
     st.dataframe(
-        top_kurang[
-            [
-                "Kota",
-                "Tahun",
-                "Jumlah_Guru",
-                "Guru_Ideal",
-                "Gap"
-            ]
-        ],
-        use_container_width=True
+    top_kurang[
+        [
+            "Kota",
+            "Jumlah_Guru",
+            "Guru_Ideal",
+            "Gap"
+        ]
+    ],
+    use_container_width=True
     )
-
     st.subheader(
-        "🟢 Top 10 Kelebihan Guru"
+    "🟢 Top 10 Kelebihan Guru Tahun 2025"
     )
-
+    
     top_lebih = (
-        df_filter[
-            df_filter["Gap"] < 0
+        data_2025[
+            data_2025["Gap"] < 0
         ]
         .sort_values(
             by="Gap"
         )
         .head(10)
     )
-
+    
     st.dataframe(
         top_lebih[
             [
                 "Kota",
-                "Tahun",
                 "Jumlah_Guru",
                 "Guru_Ideal",
                 "Gap"
@@ -375,7 +376,6 @@ if menu == "Dashboard":
         ],
         use_container_width=True
     )
-
     st.markdown("---")
 
     st.subheader(
