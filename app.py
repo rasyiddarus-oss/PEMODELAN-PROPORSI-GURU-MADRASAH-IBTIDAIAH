@@ -1109,3 +1109,384 @@ elif menu == "Simulasi Prediksi":
             use_container_width=True
         )
 
+# ==================================================
+# MONITORING DISTRIBUSI GURU
+# ==================================================
+
+elif menu == "Monitoring Distribusi":
+
+    st.title(
+        "📊 Monitoring Distribusi Guru"
+    )
+
+    st.markdown("""
+    Monitoring digunakan untuk melihat kondisi
+    distribusi guru pada setiap kabupaten/kota
+    berdasarkan hasil analisis gap.
+    """)
+
+    col1,col2 = st.columns(2)
+
+    with col1:
+
+        kota_pilih = st.selectbox(
+            "Pilih Kota",
+            sorted(
+                df["Kota"].unique()
+            )
+        )
+
+    with col2:
+
+        tahun_pilih = st.selectbox(
+            "Pilih Tahun",
+            sorted(
+                df["Tahun"].unique()
+            )
+        )
+
+    data_monitor = df[
+        (df["Kota"] == kota_pilih)
+        &
+        (df["Tahun"] == tahun_pilih)
+    ]
+
+    if len(data_monitor) > 0:
+
+        data = data_monitor.iloc[0]
+
+        col1,col2,col3,col4 = st.columns(4)
+
+        with col1:
+
+            st.metric(
+                "👨‍🏫 Guru Aktual",
+                int(
+                    data["Jumlah_Guru"]
+                )
+            )
+
+        with col2:
+
+            st.metric(
+                "🎯 Guru Ideal",
+                round(
+                    data["Guru_Ideal"]
+                )
+            )
+
+        with col3:
+
+            st.metric(
+                "⚖️ Gap",
+                round(
+                    data["Gap"]
+                )
+            )
+
+        with col4:
+
+            st.metric(
+                "📈 Rasio",
+                round(
+                    data["Rasio_Siswa_Guru"],
+                    2
+                )
+            )
+
+        st.markdown("---")
+
+        kondisi = data["Kondisi"]
+
+        if kondisi == "Kekurangan Guru":
+
+            st.error(
+                f"Status: {kondisi}"
+            )
+
+        else:
+
+            st.success(
+                f"Status: {kondisi}"
+            )
+
+        st.subheader(
+            "Perbandingan Guru Aktual dan Ideal"
+        )
+
+        chart_df = pd.DataFrame({
+
+            "Kategori":[
+                "Guru Aktual",
+                "Guru Ideal"
+            ],
+
+            "Jumlah":[
+                data["Jumlah_Guru"],
+                data["Guru_Ideal"]
+            ]
+
+        })
+
+        fig = px.bar(
+            chart_df,
+            x="Kategori",
+            y="Jumlah",
+            color="Kategori",
+            title="Perbandingan Guru Aktual dan Guru Ideal"
+        )
+
+        st.plotly_chart(
+            fig,
+            use_container_width=True
+        )
+
+        st.subheader(
+            "Detail Data"
+        )
+
+        st.dataframe(
+            data_monitor,
+            use_container_width=True
+        )
+
+        st.markdown("---")
+
+        if data["Gap"] > 0:
+
+            st.warning(
+                f"""
+                Kota {kota_pilih} masih mengalami
+                kekurangan sekitar
+                {round(data['Gap'])} guru.
+                """
+            )
+
+        else:
+
+            st.success(
+                f"""
+                Kota {kota_pilih} telah memenuhi
+                kebutuhan guru berdasarkan
+                hasil analisis.
+                """
+            )
+
+        else:
+    
+            st.error(
+                "Data tidak ditemukan."
+            )
+
+# ==================================================
+# WHAT IF ANALYSIS
+# ==================================================
+
+elif menu == "What-If Analysis":
+
+    st.title(
+        "🎯 What-If Analysis"
+    )
+
+    st.markdown("""
+    Fitur ini digunakan untuk mensimulasikan
+    perubahan jumlah siswa dan jumlah sekolah
+    serta melihat dampaknya terhadap kebutuhan guru.
+    """)
+
+    col1,col2 = st.columns(2)
+
+    with col1:
+
+        siswa_baru = st.slider(
+            "Jumlah Siswa",
+            min_value=100,
+            max_value=300000,
+            value=50000,
+            step=100
+        )
+
+    with col2:
+
+        sekolah_baru = st.slider(
+            "Jumlah Sekolah",
+            min_value=1,
+            max_value=2000,
+            value=300,
+            step=1
+        )
+
+    guru_prediksi = (
+        175.3598
+        +
+        (0.0222 * siswa_baru)
+        +
+        (4.7393 * sekolah_baru)
+    )
+
+    guru_ideal = (
+        siswa_baru / 15
+    )
+
+    gap = (
+        guru_ideal
+        -
+        guru_prediksi
+    )
+
+    if gap > 0:
+
+        kondisi = (
+            "Kekurangan Guru"
+        )
+
+    else:
+
+        kondisi = (
+            "Kelebihan Guru"
+        )
+
+    st.markdown("---")
+
+    col1,col2,col3,col4 = st.columns(4)
+
+    with col1:
+
+        st.metric(
+            "Prediksi Guru",
+            round(guru_prediksi)
+        )
+
+    with col2:
+
+        st.metric(
+            "Guru Ideal",
+            round(guru_ideal)
+        )
+
+    with col3:
+
+        st.metric(
+            "Gap",
+            round(gap)
+        )
+
+    with col4:
+
+        st.metric(
+            "Status",
+            kondisi
+        )
+
+    fig = go.Figure(
+
+        go.Indicator(
+
+            mode="gauge+number",
+
+            value=guru_prediksi,
+
+            title={
+                "text":
+                "Prediksi Guru"
+            },
+
+            gauge={
+                "axis":{
+                    "range":
+                    [0,guru_prediksi*1.5]
+                }
+            }
+
+        )
+
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+
+    chart_df = pd.DataFrame({
+
+        "Kategori":[
+            "Prediksi Guru",
+            "Guru Ideal"
+        ],
+
+        "Jumlah":[
+            guru_prediksi,
+            guru_ideal
+        ]
+
+    })
+
+    fig = px.bar(
+        chart_df,
+        x="Kategori",
+        y="Jumlah",
+        color="Kategori",
+        title="Perbandingan Guru Prediksi dan Guru Ideal"
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+
+    st.markdown("---")
+
+    if gap > 0:
+
+        st.warning(
+            f"""
+            Berdasarkan simulasi,
+            masih terdapat kekurangan
+            sekitar {round(gap)} guru.
+            """
+        )
+
+    else:
+
+        st.success(
+            f"""
+            Berdasarkan simulasi,
+            kebutuhan guru telah terpenuhi.
+            """
+        )
+
+    hasil_simulasi = pd.DataFrame({
+
+        "Jumlah_Siswa":[
+            siswa_baru
+        ],
+
+        "Jumlah_Sekolah":[
+            sekolah_baru
+        ],
+
+        "Prediksi_Guru":[
+            round(guru_prediksi)
+        ],
+
+        "Guru_Ideal":[
+            round(guru_ideal)
+        ],
+
+        "Gap":[
+            round(gap)
+        ],
+
+        "Status":[
+            kondisi
+        ]
+
+    })
+
+    st.dataframe(
+        hasil_simulasi,
+        use_container_width=True
+    )
+
+
+
