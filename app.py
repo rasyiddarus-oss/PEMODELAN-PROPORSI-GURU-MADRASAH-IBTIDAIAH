@@ -1272,11 +1272,11 @@ elif menu == "Monitoring Distribusi":
                 """
             )
 
-        else:
+    else:
     
-            st.error(
-                "Data tidak ditemukan."
-            )
+        st.error(
+            "Data tidak ditemukan."
+        )
 
 # ==================================================
 # WHAT IF ANALYSIS
