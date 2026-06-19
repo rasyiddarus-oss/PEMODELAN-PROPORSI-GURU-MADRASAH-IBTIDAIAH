@@ -362,6 +362,7 @@ if menu == "Dashboard":
         st.dataframe(
             top_kurang[
                 [
+                    "Tahun",
                     "Kota",
                     "Jumlah_Guru",
                     "Guru_Ideal",
@@ -409,6 +410,7 @@ if menu == "Dashboard":
     st.dataframe(
         top_lebih[
             [
+                "Tahun",
                 "Kota",
                 "Jumlah_Guru",
                 "Guru_Ideal",
