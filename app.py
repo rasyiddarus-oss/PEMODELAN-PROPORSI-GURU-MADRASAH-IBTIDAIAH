@@ -83,6 +83,7 @@ menu = st.sidebar.radio(
         "Monitoring Distribusi",
         "What-If Analysis",
         "Analisis Gap",
+        "Rekomendasi Distribusi",
         "Klasifikasi",
         "Laporan"
     ]
@@ -1488,5 +1489,632 @@ elif menu == "What-If Analysis":
         use_container_width=True
     )
 
+# ==================================================
+# ANALISIS GAP
+# ==================================================
 
+elif menu == "Analisis Gap":
 
+    st.title(
+        "📉 Analisis Gap Distribusi Guru"
+    )
+
+    st.markdown("""
+    Analisis gap digunakan untuk mengidentifikasi
+    wilayah yang mengalami kekurangan atau
+    kelebihan guru berdasarkan perbandingan
+    antara guru aktual dan guru ideal.
+    """)
+
+    st.subheader(
+        "Statistik Gap"
+    )
+
+    col1,col2,col3,col4 = st.columns(4)
+
+    with col1:
+
+        st.metric(
+            "Gap Minimum",
+            round(df["Gap"].min())
+        )
+
+    with col2:
+
+        st.metric(
+            "Gap Maksimum",
+            round(df["Gap"].max())
+        )
+
+    with col3:
+
+        st.metric(
+            "Rata-rata Gap",
+            round(df["Gap"].mean())
+        )
+
+    with col4:
+
+        st.metric(
+            "Median Gap",
+            round(df["Gap"].median())
+        )
+
+    st.markdown("---")
+
+    st.subheader(
+        "Distribusi Nilai Gap"
+    )
+
+    fig_gap = px.histogram(
+        df,
+        x="Gap",
+        nbins=25,
+        color_discrete_sequence=["#ef4444"]
+    )
+
+    fig_gap.update_layout(
+        title="Distribusi Gap Guru"
+    )
+
+    st.plotly_chart(
+        fig_gap,
+        use_container_width=True
+    )
+
+    st.subheader(
+        "Sebaran Gap"
+    )
+
+    fig_box = px.box(
+        df,
+        y="Gap",
+        points="outliers"
+    )
+
+    st.plotly_chart(
+        fig_box,
+        use_container_width=True
+    )
+
+    st.markdown("---")
+
+    st.subheader(
+        "🔴 Top 10 Kekurangan Guru Tahun 2025"
+    )
+
+    data_2025 = df[
+        df["Tahun"] == 2025
+    ]
+
+    top_kurang = (
+        data_2025[
+            data_2025["Gap"] > 0
+        ]
+        .sort_values(
+            by="Gap",
+            ascending=False
+        )
+        .head(10)
+    )
+
+    fig_kurang = px.bar(
+        top_kurang,
+        x="Gap",
+        y="Kota",
+        orientation="h",
+        color="Gap",
+        text="Gap",
+        title="Top 10 Kekurangan Guru"
+    )
+
+    st.plotly_chart(
+        fig_kurang,
+        use_container_width=True
+    )
+
+    st.subheader(
+        "🟢 Top 10 Kelebihan Guru Tahun 2025"
+    )
+
+    top_lebih = (
+        data_2025[
+            data_2025["Gap"] < 0
+        ]
+        .sort_values(
+            by="Gap"
+        )
+        .head(10)
+    )
+
+    fig_lebih = px.bar(
+        top_lebih,
+        x="Gap",
+        y="Kota",
+        orientation="h",
+        color="Gap",
+        text="Gap",
+        title="Top 10 Kelebihan Guru"
+    )
+
+    st.plotly_chart(
+        fig_lebih,
+        use_container_width=True
+    )
+
+    st.markdown("---")
+
+    st.subheader(
+        "Ranking Gap Seluruh Kota Tahun 2025"
+    )
+
+    ranking_gap = (
+        data_2025
+        .sort_values(
+            by="Gap",
+            ascending=False
+        )
+    )
+
+    st.dataframe(
+        ranking_gap[
+            [
+                "Kota",
+                "Jumlah_Guru",
+                "Guru_Ideal",
+                "Gap",
+                "Kondisi"
+            ]
+        ],
+        use_container_width=True
+    )
+
+    st.markdown("---")
+
+    st.subheader(
+        "Distribusi Kondisi Guru"
+    )
+
+    kondisi_df = (
+        data_2025["Kondisi"]
+        .value_counts()
+        .reset_index()
+    )
+
+    kondisi_df.columns = [
+        "Kondisi",
+        "Jumlah"
+    ]
+
+    fig = px.pie(
+        kondisi_df,
+        values="Jumlah",
+        names="Kondisi",
+        hole=0.4
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+
+    st.markdown("---")
+
+    kota_terburuk = (
+        top_kurang
+        .iloc[0]["Kota"]
+    )
+
+    gap_terbesar = (
+        round(
+            top_kurang
+            .iloc[0]["Gap"]
+        )
+    )
+
+    st.warning(
+        f"""
+        Kota dengan kekurangan guru terbesar
+        pada tahun 2025 adalah
+        {kota_terburuk}
+        dengan kekurangan sekitar
+        {gap_terbesar} guru.
+        """
+    )
+
+# ==================================================
+# REKOMENDASI DISTRIBUSI GURU
+# ==================================================
+
+elif menu == "Rekomendasi Distribusi":
+
+    st.title(
+        "🎯 Rekomendasi Prioritas Distribusi Guru"
+    )
+
+    st.markdown("""
+    Rekomendasi disusun berdasarkan hasil
+    analisis gap untuk menentukan wilayah
+    yang perlu diprioritaskan dalam pemerataan guru.
+    """)
+
+    data_2025 = df[
+        df["Tahun"] == 2025
+    ].copy()
+
+    def prioritas(gap):
+
+        if gap >= 2000:
+            return "Sangat Tinggi"
+
+        elif gap >= 1000:
+            return "Tinggi"
+
+        elif gap >= 500:
+            return "Sedang"
+
+        elif gap > 0:
+            return "Rendah"
+
+        else:
+            return "Tidak Prioritas"
+
+    data_2025["Prioritas"] = (
+        data_2025["Gap"]
+        .apply(prioritas)
+    )
+
+    ranking = (
+        data_2025
+        .sort_values(
+            by="Gap",
+            ascending=False
+        )
+    )
+
+    col1,col2,col3,col4 = st.columns(4)
+
+    with col1:
+
+        st.metric(
+            "Prioritas Sangat Tinggi",
+            len(
+                ranking[
+                    ranking["Prioritas"]
+                    ==
+                    "Sangat Tinggi"
+                ]
+            )
+        )
+
+    with col2:
+
+        st.metric(
+            "Prioritas Tinggi",
+            len(
+                ranking[
+                    ranking["Prioritas"]
+                    ==
+                    "Tinggi"
+                ]
+            )
+        )
+
+    with col3:
+
+        st.metric(
+            "Prioritas Sedang",
+            len(
+                ranking[
+                    ranking["Prioritas"]
+                    ==
+                    "Sedang"
+                ]
+            )
+        )
+
+    with col4:
+
+        st.metric(
+            "Tidak Prioritas",
+            len(
+                ranking[
+                    ranking["Prioritas"]
+                    ==
+                    "Tidak Prioritas"
+                ]
+            )
+        )
+
+    st.markdown("---")
+
+    prioritas_count = (
+        ranking["Prioritas"]
+        .value_counts()
+        .reset_index()
+    )
+
+    prioritas_count.columns = [
+        "Prioritas",
+        "Jumlah"
+    ]
+
+    fig = px.bar(
+        prioritas_count,
+        x="Prioritas",
+        y="Jumlah",
+        color="Prioritas",
+        title="Distribusi Prioritas Distribusi Guru"
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+
+    st.subheader(
+        "Top 10 Prioritas Distribusi Guru"
+    )
+
+    top10 = (
+        ranking[
+            ranking["Gap"] > 0
+        ]
+        .head(10)
+    )
+
+    fig = px.bar(
+        top10,
+        x="Gap",
+        y="Kota",
+        orientation="h",
+        color="Prioritas",
+        text="Gap",
+        title="Top 10 Prioritas Distribusi Guru"
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+
+    st.dataframe(
+        top10[
+            [
+                "Kota",
+                "Jumlah_Guru",
+                "Guru_Ideal",
+                "Gap",
+                "Prioritas"
+            ]
+        ],
+        use_container_width=True
+    )
+
+    st.markdown("---")
+
+    kota_prioritas = (
+        top10.iloc[0]["Kota"]
+    )
+
+    gap_prioritas = (
+        round(
+            top10.iloc[0]["Gap"]
+        )
+    )
+
+    st.warning(
+        f"""
+        Berdasarkan hasil analisis gap,
+        wilayah yang menjadi prioritas utama
+        distribusi guru adalah
+        {kota_prioritas}
+        dengan kekurangan sekitar
+        {gap_prioritas} guru.
+        """
+    )
+
+# ==================================================
+# KLASIFIKASI KONDISI
+# ==================================================
+
+elif menu == "Klasifikasi":
+
+    st.title(
+        "🏷️ Klasifikasi Kondisi Distribusi Guru"
+    )
+
+    st.markdown("""
+    Klasifikasi dilakukan berdasarkan hasil analisis gap
+    untuk mengidentifikasi wilayah yang mengalami
+    kekurangan atau kelebihan guru.
+    """)
+
+    kondisi_count = (
+        df["Kondisi"]
+        .value_counts()
+        .reset_index()
+    )
+
+    kondisi_count.columns = [
+        "Kondisi",
+        "Jumlah"
+    ]
+
+    col1,col2 = st.columns(2)
+
+    with col1:
+
+        st.metric(
+            "Kekurangan Guru",
+            int(
+                (df["Kondisi"] ==
+                 "Kekurangan Guru")
+                .sum()
+            )
+        )
+
+    with col2:
+
+        st.metric(
+            "Kelebihan Guru",
+            int(
+                (df["Kondisi"] ==
+                 "Kelebihan Guru")
+                .sum()
+            )
+        )
+
+    st.markdown("---")
+
+    fig = px.pie(
+        kondisi_count,
+        values="Jumlah",
+        names="Kondisi",
+        hole=0.4,
+        title="Distribusi Kondisi Guru"
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+
+    fig_bar = px.bar(
+        kondisi_count,
+        x="Kondisi",
+        y="Jumlah",
+        color="Kondisi",
+        title="Jumlah Data pada Setiap Kondisi"
+    )
+
+    st.plotly_chart(
+        fig_bar,
+        use_container_width=True
+    )
+
+    st.subheader(
+        "Detail Klasifikasi"
+    )
+
+    st.dataframe(
+        df[
+            [
+                "Tahun",
+                "Kota",
+                "Jumlah_Guru",
+                "Guru_Ideal",
+                "Gap",
+                "Kondisi"
+            ]
+        ],
+        use_container_width=True
+    )
+
+    st.markdown("---")
+
+    gap_max = (
+        df.sort_values(
+            by="Gap",
+            ascending=False
+        )
+        .iloc[0]
+    )
+
+    st.warning(
+        f"""
+        Wilayah dengan kekurangan guru terbesar adalah
+        {gap_max['Kota']}
+        dengan gap sebesar
+        {round(gap_max['Gap'])} guru.
+        """
+    )
+
+# ==================================================
+# LAPORAN
+# ==================================================
+
+elif menu == "Laporan":
+
+    st.title(
+        "📄 Laporan Hasil Analisis"
+    )
+
+    st.markdown("""
+    Halaman ini digunakan untuk melihat
+    ringkasan hasil penelitian dan mengunduh
+    dataset hasil analisis.
+    """)
+
+    st.subheader(
+        "Ringkasan Penelitian"
+    )
+
+    st.success("""
+    Judul:
+
+    Pemodelan Proporsi Guru Madrasah Ibtidaiyah
+    Menggunakan Regresi Linear Berganda
+    dan Analisis Gap di Provinsi Jawa Barat
+
+    Metode:
+    - Regresi Linear Berganda
+    - Analisis Gap
+
+    Data:
+    - 108 observasi
+    - Periode 2022–2025
+
+    Variabel:
+    - Jumlah Siswa
+    - Jumlah Sekolah
+    - Jumlah Guru
+    """)
+
+    st.subheader(
+        "Ringkasan Model"
+    )
+
+    model_df = pd.DataFrame({
+
+        "Metrik":[
+            "R²",
+            "Adjusted R²"
+        ],
+
+        "Nilai":[
+            0.929,
+            0.927
+        ]
+
+    })
+
+    st.dataframe(
+        model_df,
+        use_container_width=True
+    )
+
+    st.subheader(
+        "Preview Dataset"
+    )
+
+    st.dataframe(
+        df.head(20),
+        use_container_width=True
+    )
+
+    st.subheader(
+        "Download Dataset"
+    )
+
+    with open(
+        "Hasil_Analisis_Guru_MI.xlsx",
+        "rb"
+    ) as file:
+
+        st.download_button(
+            label="📥 Download Hasil Analisis",
+            data=file,
+            file_name="Hasil_Analisis_Guru_MI.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
