@@ -338,7 +338,7 @@ if menu == "Dashboard":
             .head(10)
         )
 
-               fig_kurang = px.bar(
+        fig_kurang = px.bar(
             top_kurang,
             x="Gap",
             y="Kota",
