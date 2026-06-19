@@ -610,3 +610,177 @@ elif menu == "Visualisasi Data":
       {top_rasio.iloc[0]['Kota']}
       ({top_rasio.iloc[0]['Rasio_Siswa_Guru']:.2f})
     """)
+
+# ==================================================
+# PEMODELAN REGRESI
+# ==================================================
+
+elif menu == "Pemodelan Regresi":
+
+    st.title(
+        "🧮 Pemodelan Regresi Linear Berganda"
+    )
+
+    st.markdown("""
+    Model regresi digunakan untuk memodelkan hubungan
+    antara jumlah siswa dan jumlah sekolah terhadap
+    jumlah guru Madrasah Ibtidaiyah.
+    """)
+
+    st.subheader(
+        "Persamaan Regresi"
+    )
+
+    st.latex(
+        r'''
+        Y =
+        175.3598
+        +
+        0.0222X_1
+        +
+        4.7393X_2
+        '''
+    )
+
+    st.markdown("---")
+
+    col1,col2,col3,col4 = st.columns(4)
+
+    with col1:
+        st.metric(
+            "R²",
+            "0.929"
+        )
+
+    with col2:
+        st.metric(
+            "Adj R²",
+            "0.927"
+        )
+
+    with col3:
+        st.metric(
+            "Variabel Signifikan",
+            "2"
+        )
+
+    with col4:
+        st.metric(
+            "Observasi",
+            "108"
+        )
+
+    st.markdown("---")
+
+    st.subheader(
+        "Interpretasi Koefisien"
+    )
+
+    interpretasi = pd.DataFrame({
+
+        "Variabel":[
+            "Jumlah Siswa",
+            "Jumlah Sekolah"
+        ],
+
+        "Koefisien":[
+            0.0222,
+            4.7393
+        ],
+
+        "Interpretasi":[
+            "Setiap kenaikan 1 siswa meningkatkan jumlah guru sebesar 0.0222",
+            "Setiap kenaikan 1 sekolah meningkatkan jumlah guru sebesar 4.7393"
+        ]
+
+    })
+
+    st.dataframe(
+        interpretasi,
+        use_container_width=True
+    )
+
+    st.markdown("---")
+
+    st.subheader(
+        "Aktual vs Prediksi"
+    )
+
+    fig = px.scatter(
+        df,
+        x="Jumlah_Guru",
+        y="Guru_Prediksi",
+        color="Tahun",
+        hover_name="Kota",
+        title="Perbandingan Guru Aktual dan Prediksi"
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+
+    st.subheader(
+        "Distribusi Error Prediksi"
+    )
+
+    df_error = df.copy()
+
+    df_error["Error"] = (
+        df_error["Jumlah_Guru"]
+        -
+        df_error["Guru_Prediksi"]
+    )
+
+    fig = px.histogram(
+        df_error,
+        x="Error",
+        nbins=20,
+        title="Distribusi Error Prediksi"
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+
+    st.markdown("---")
+
+    st.subheader(
+        "Korelasi Variabel"
+    )
+
+    corr = df[
+        [
+            "Jumlah_Siswa",
+            "Jumlah_Sekolah",
+            "Jumlah_Guru"
+        ]
+    ].corr()
+
+    fig = px.imshow(
+        corr,
+        text_auto=True,
+        aspect="auto",
+        title="Matriks Korelasi"
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+
+    st.markdown("---")
+
+    st.success("""
+    Kesimpulan Model:
+
+    • Model mampu menjelaskan 92,9% variasi jumlah guru.
+
+    • Jumlah siswa berpengaruh positif terhadap jumlah guru.
+
+    • Jumlah sekolah berpengaruh positif terhadap jumlah guru.
+
+    • Model layak digunakan untuk analisis kebutuhan guru MI.
+    """)
+
