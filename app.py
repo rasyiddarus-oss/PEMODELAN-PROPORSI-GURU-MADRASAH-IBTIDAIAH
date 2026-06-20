@@ -153,7 +153,7 @@ Provinsi Jawa Barat
 if menu == "Dashboard":
 
     st.title(
-        "📊 Dashboard Pendidikan MI Jawa Barat"
+        "📊 Dashboard Pemodelan Proporsi Guru Madrasah Ibtidaiah "
     )
 
     st.markdown(
@@ -374,6 +374,7 @@ if menu == "Dashboard":
     st.dataframe(
         top_kurang[
             [
+                "Tahun",
                 "Kota",
                 "Jumlah_Guru",
                 "Guru_Ideal",
@@ -452,7 +453,7 @@ if menu == "Dashboard":
 elif menu == "Visualisasi Data":
 
     st.title(
-        "📈 Visualisasi Data Pendidikan MI"
+        "📈 Visualisasi Data Guru MI"
     )
 
     st.markdown(
